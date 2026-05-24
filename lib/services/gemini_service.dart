@@ -67,10 +67,15 @@ KURALLAR:
     }
   }
 
-  static Future<void> _processMemoryCommands(String text) async {
+static Future<void> _processMemoryCommands(String text) async {
     final saveRegex = RegExp(r'\[HAFIZA_KAYDET:(\w+)/(\w+)=(.+?)\]');
     for (final match in saveRegex.allMatches(text)) {
       await MemoryService.update(match.group(1)!, match.group(2)!, match.group(3)!);
+    }
+
+    final deleteRegex = RegExp(r'\[HAFIZA_SİL:(\w+)/(\w+)\]');
+    for (final match in deleteRegex.allMatches(text)) {
+      await MemoryService.delete(match.group(1)!, match.group(2)!, '');
     }
   }
 
