@@ -24,11 +24,11 @@ class JarvisApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF050A14),
+        scaffoldBackgroundColor: const Color(0xFF020D02),
         colorScheme: const ColorScheme.dark(
-          primary: Color(0xFF00D4FF),
-          secondary: Color(0xFF0066FF),
-          surface: Color(0xFF0D1B2A),
+          primary: Color(0xFF00FF41),
+          secondary: Color(0xFF008F11),
+          surface: Color(0xFF0A1A0A),
         ),
         textTheme: GoogleFonts.rajdhaniTextTheme(ThemeData.dark().textTheme),
         useMaterial3: true,
