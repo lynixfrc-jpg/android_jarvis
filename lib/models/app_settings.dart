@@ -1,7 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppSettings {
-  static const _keyApiKey = 'gemini_api_key';
+  static const _keyApiKey = 'groq_api_key';
   static const _keyUserName = 'user_name';
   static const _keyCity = 'city';
 
