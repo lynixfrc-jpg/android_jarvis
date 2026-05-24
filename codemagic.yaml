@@ -5,6 +5,49 @@ workflows:
       flutter: stable
       java: 17
     scripts:
+      - name: Create launcher icon
+        script: |
+          mkdir -p android/app/src/main/res/mipmap-mdpi
+          mkdir -p android/app/src/main/res/mipmap-hdpi
+          mkdir -p android/app/src/main/res/mipmap-xhdpi
+          mkdir -p android/app/src/main/res/mipmap-xxhdpi
+          mkdir -p android/app/src/main/res/mipmap-xxxhdpi
+          python3 -c "
+          import struct, zlib
+
+          def make_png(size, r, g, b):
+              def chunk(name, data):
+                  c = zlib.crc32(name + data) & 0xffffffff
+                  return struct.pack('>I', len(data)) + name + data + struct.pack('>I', c)
+              raw = b''
+              for y in range(size):
+                  raw += b'\x00'
+                  for x in range(size):
+                      cx, cy = x - size/2, y - size/2
+                      dist = (cx**2 + cy**2) ** 0.5
+                      if dist < size*0.4:
+                          raw += bytes([r, g, b, 255])
+                      else:
+                          raw += bytes([5, 10, 20, 255])
+              compressed = zlib.compress(raw)
+              ihdr = struct.pack('>IIBBBBB', size, size, 8, 6, 0, 0, 0)
+              png = b'\x89PNG\r\n\x1a\n'
+              png += chunk(b'IHDR', ihdr)
+              png += chunk(b'IDAT', compressed)
+              png += chunk(b'IEND', b'')
+              return png
+
+          sizes = {
+              'mipmap-mdpi': 48,
+              'mipmap-hdpi': 72,
+              'mipmap-xhdpi': 96,
+              'mipmap-xxhdpi': 144,
+              'mipmap-xxxhdpi': 192,
+          }
+          for folder, size in sizes.items():
+              with open(f'android/app/src/main/res/{folder}/ic_launcher.png', 'wb') as f:
+                  f.write(make_png(size, 0, 212, 255))
+          "
       - name: Flutter pub get
         script: flutter pub get
       - name: Build APK
