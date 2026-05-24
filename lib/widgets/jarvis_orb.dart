@@ -28,10 +28,10 @@ class _JarvisOrbState extends State<JarvisOrb> with SingleTickerProviderStateMix
 
   Color get _primaryColor {
     switch (widget.state) {
-      case OrbState.listening: return const Color(0xFF00FF88);
-      case OrbState.thinking: return const Color(0xFFFFAA00);
-      case OrbState.speaking: return const Color(0xFF00D4FF);
-      case OrbState.idle: return const Color(0xFF0066FF);
+      case OrbState.listening: return const Color(0xFF00FF41);
+      case OrbState.thinking: return const Color(0xFF39FF14);
+      case OrbState.speaking: return const Color(0xFF00CC33);
+      case OrbState.idle: return const Color(0xFF008F11);
     }
   }
 
@@ -42,40 +42,59 @@ class _JarvisOrbState extends State<JarvisOrb> with SingleTickerProviderStateMix
       builder: (_, __) => Transform.scale(
         scale: widget.state == OrbState.idle ? 1.0 : _pulse.value,
         child: SizedBox(
-          width: 120, height: 120,
+          width: 130, height: 130,
           child: Stack(
             alignment: Alignment.center,
             children: [
+              // Dış halka
+              Container(
+                width: 130, height: 130,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: _primaryColor.withOpacity(0.15), width: 1),
+                ),
+              ),
+              // Dönen halka
               if (widget.state != OrbState.idle)
                 Transform.rotate(
                   angle: _rotate.value,
                   child: Container(
-                    width: 120, height: 120,
+                    width: 115, height: 115,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: _primaryColor.withOpacity(0.3), width: 1),
+                      border: Border.all(color: _primaryColor.withOpacity(0.4), width: 1.5),
                     ),
                   ),
                 ),
+              // Orta halka
               Container(
-                width: 90, height: 90,
+                width: 95, height: 95,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: _primaryColor.withOpacity(0.5), width: 1.5),
-                  boxShadow: [BoxShadow(color: _primaryColor.withOpacity(0.2), blurRadius: 20, spreadRadius: 5)],
+                  border: Border.all(color: _primaryColor.withOpacity(0.6), width: 1.5),
+                  boxShadow: [
+                    BoxShadow(color: _primaryColor.withOpacity(0.3), blurRadius: 25, spreadRadius: 8),
+                  ],
                 ),
               ),
+              // İç top
               Container(
-                width: 70, height: 70,
+                width: 72, height: 72,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
-                    colors: [_primaryColor.withOpacity(0.9), _primaryColor.withOpacity(0.4), const Color(0xFF050A14)],
+                    colors: [
+                      _primaryColor.withOpacity(0.95),
+                      _primaryColor.withOpacity(0.5),
+                      const Color(0xFF020D02),
+                    ],
                     stops: const [0.0, 0.5, 1.0],
                   ),
-                  boxShadow: [BoxShadow(color: _primaryColor.withOpacity(0.6), blurRadius: 25, spreadRadius: 5)],
+                  boxShadow: [
+                    BoxShadow(color: _primaryColor.withOpacity(0.7), blurRadius: 30, spreadRadius: 6),
+                  ],
                 ),
-                child: Icon(_stateIcon, color: Colors.white, size: 28),
+                child: Icon(_stateIcon, color: Colors.black, size: 28),
               ),
             ],
           ),
