@@ -4,8 +4,8 @@ import '../models/app_settings.dart';
 import 'memory_service.dart';
 
 class GeminiService {
-  static const _model = 'gemini-2.0-flash';
-  static const _baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models';
+  static const _model = 'deepseek-r1-distill-llama-70b';
+  static const _baseUrl = 'https://api.groq.com/openai/v1/chat/completions';
 
   static String _buildSystemPrompt(String memoryStr, String userName, String city) {
     final now = DateTime.now();
@@ -30,32 +30,44 @@ KURALLAR:
 
   static Future<String> chat({required String userMessage, required List<Map<String, dynamic>> history}) async {
     final apiKey = await AppSettings.getApiKey();
-    if (apiKey.isEmpty) return 'API anahtarı ayarlanmamış. Lütfen ayarlardan Gemini API anahtarını girin.';
+    if (apiKey.isEmpty) return 'API anahtarı ayarlanmamış. Lütfen ayarlardan Groq API anahtarını girin.';
 
     final userName = await AppSettings.getUserName();
     final city = await AppSettings.getCity();
     final memStr = await MemoryService.formatForPrompt();
     final systemPrompt = _buildSystemPrompt(memStr, userName, city);
 
-    final messages = <Map<String, dynamic>>[...history];
-    messages.add({'role': 'user', 'parts': [{'text': userMessage}]});
+    final messages = <Map<String, dynamic>>[
+      {'role': 'system', 'content': systemPrompt},
+    ];
+
+    for (final msg in history) {
+      final role = msg['role'] == 'model' ? 'assistant' : msg['role'];
+      final content = msg['parts']?[0]?['text'] ?? '';
+      messages.add({'role': role, 'content': content});
+    }
+    messages.add({'role': 'user', 'content': userMessage});
 
     final body = json.encode({
-      'system_instruction': {'parts': [{'text': systemPrompt}]},
-      'contents': messages,
-      'generationConfig': {'temperature': 0.7, 'maxOutputTokens': 1024},
+      'model': _model,
+      'messages': messages,
+      'temperature': 0.7,
+      'max_tokens': 1024,
     });
 
     try {
       final response = await http.post(
-        Uri.parse('$_baseUrl/$_model:generateContent?key=$apiKey'),
-        headers: {'Content-Type': 'application/json'},
+        Uri.parse(_baseUrl),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $apiKey',
+        },
         body: body,
       ).timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final text = data['candidates']?[0]?['content']?['parts']?[0]?['text'] ?? '';
+        final text = data['choices']?[0]?['message']?['content'] ?? '';
         await _processMemoryCommands(text);
         return _cleanResponse(text);
       } else {
@@ -67,12 +79,11 @@ KURALLAR:
     }
   }
 
-static Future<void> _processMemoryCommands(String text) async {
+  static Future<void> _processMemoryCommands(String text) async {
     final saveRegex = RegExp(r'\[HAFIZA_KAYDET:(\w+)/(\w+)=(.+?)\]');
     for (final match in saveRegex.allMatches(text)) {
       await MemoryService.update(match.group(1)!, match.group(2)!, match.group(3)!);
     }
-
     final deleteRegex = RegExp(r'\[HAFIZA_SİL:(\w+)/(\w+)\]');
     for (final match in deleteRegex.allMatches(text)) {
       await MemoryService.delete(match.group(1)!, match.group(2)!, '');
@@ -83,6 +94,7 @@ static Future<void> _processMemoryCommands(String text) async {
     return text
         .replaceAll(RegExp(r'\[HAFIZA_KAYDET:[^\]]+\]'), '')
         .replaceAll(RegExp(r'\[HAFIZA_SİL:[^\]]+\]'), '')
+        .replaceAll(RegExp(r'<think>.*?</think>', dotAll: true), '')
         .trim();
   }
 }
