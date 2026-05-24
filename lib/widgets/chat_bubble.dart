@@ -17,11 +17,12 @@ class ChatBubble extends StatelessWidget {
         children: [
           if (!isUser) Container(
             width: 32, height: 32,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: LinearGradient(colors: [Color(0xFF00D4FF), Color(0xFF0066FF)]),
+              gradient: const LinearGradient(colors: [Color(0xFF00FF41), Color(0xFF008F11)]),
+              boxShadow: [BoxShadow(color: const Color(0xFF00FF41).withOpacity(0.4), blurRadius: 8)],
             ),
-            child: const Icon(Icons.assistant, color: Colors.white, size: 18),
+            child: const Icon(Icons.assistant, color: Colors.black, size: 18),
           ),
           const SizedBox(width: 8),
           Flexible(
@@ -29,16 +30,17 @@ class ChatBubble extends StatelessWidget {
               constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: BoxDecoration(
-                color: isUser ? const Color(0xFF0066FF).withOpacity(0.8) : const Color(0xFF0D1B2A),
+                color: isUser ? const Color(0xFF008F11).withOpacity(0.7) : const Color(0xFF0A1A0A),
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(18), topRight: const Radius.circular(18),
                   bottomLeft: Radius.circular(isUser ? 18 : 4),
                   bottomRight: Radius.circular(isUser ? 4 : 18),
                 ),
-                border: isUser ? null : Border.all(color: const Color(0xFF00D4FF).withOpacity(0.2)),
+                border: isUser ? null : Border.all(color: const Color(0xFF00FF41).withOpacity(0.25)),
+                boxShadow: isUser ? [BoxShadow(color: const Color(0xFF00FF41).withOpacity(0.15), blurRadius: 8)] : null,
               ),
               child: Text(message.text,
-                style: GoogleFonts.rajdhani(color: Colors.white, fontSize: 15, height: 1.4)),
+                style: GoogleFonts.rajdhani(color: isUser ? Colors.white : const Color(0xFF00FF41), fontSize: 15, height: 1.4)),
             ),
           ),
           const SizedBox(width: 8),
@@ -46,10 +48,10 @@ class ChatBubble extends StatelessWidget {
             width: 32, height: 32,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFF0066FF).withOpacity(0.3),
-              border: Border.all(color: const Color(0xFF0066FF).withOpacity(0.5)),
+              color: const Color(0xFF008F11).withOpacity(0.3),
+              border: Border.all(color: const Color(0xFF00FF41).withOpacity(0.5)),
             ),
-            child: const Icon(Icons.person, color: Color(0xFF0066FF), size: 18),
+            child: const Icon(Icons.person, color: Color(0xFF00FF41), size: 18),
           ),
         ],
       ),
