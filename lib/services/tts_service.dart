@@ -8,27 +8,38 @@ class TtsService {
 
   Future<void> initialize() async {
     if (_initialized) return;
+    await _tts.setLanguage('tr-TR');
+    await _tts.setSpeechRate(0.42);
+    await _tts.setVolume(1.0);
+    await _tts.setPitch(0.75);
     
-    // Mevcut sesleri listele ve en iyisini seç
     final voices = await _tts.getVoices;
-    String? bestVoice;
-    
     if (voices != null) {
-      for (final voice in voices) {
-        final name = voice['name']?.toString() ?? '';
-        // Google Türkçe sesi varsa onu seç
-        if (name.contains('tr') && name.contains('google')) {
-          bestVoice = name;
-          break;
-        }
+      final voiceList = List<Map>.from(voices);
+      
+      // Erkek Türkçe ses ara
+      Map? turkishMale = voiceList.firstWhere(
+        (v) => v['locale']?.toString().startsWith('tr') == true && 
+               v['name']?.toString().toLowerCase().contains('male') == true,
+        orElse: () => {},
+      );
+      
+      // Bulamazsa herhangi bir Türkçe ses
+      if (turkishMale == null || turkishMale.isEmpty) {
+        turkishMale = voiceList.firstWhere(
+          (v) => v['locale']?.toString().startsWith('tr') == true,
+          orElse: () => {},
+        );
+      }
+
+      if (turkishMale != null && turkishMale.isNotEmpty) {
+        await _tts.setVoice({
+          'name': turkishMale['name'],
+          'locale': turkishMale['locale'],
+        });
       }
     }
     
-    await _tts.setLanguage('tr-TR');
-    if (bestVoice != null) await _tts.setVoice({'name': bestVoice, 'locale': 'tr-TR'});
-    await _tts.setSpeechRate(0.45);
-    await _tts.setPitch(1.0);
-    await _tts.setVolume(1.0);
     _initialized = true;
   }
 
