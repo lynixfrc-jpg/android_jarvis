@@ -9,37 +9,28 @@ class TtsService {
   Future<void> initialize() async {
     if (_initialized) return;
     await _tts.setLanguage('tr-TR');
-    await _tts.setSpeechRate(0.42);
+    await _tts.setSpeechRate(0.45);
     await _tts.setVolume(1.0);
-    await _tts.setPitch(0.75);
+    await _tts.setPitch(0.88);
     
     final voices = await _tts.getVoices;
     if (voices != null) {
       final voiceList = List<Map>.from(voices);
-      
-      // Erkek Türkçe ses ara
       Map? turkishMale = voiceList.firstWhere(
         (v) => v['locale']?.toString().startsWith('tr') == true && 
                v['name']?.toString().toLowerCase().contains('male') == true,
         orElse: () => {},
       );
-      
-      // Bulamazsa herhangi bir Türkçe ses
       if (turkishMale == null || turkishMale.isEmpty) {
         turkishMale = voiceList.firstWhere(
           (v) => v['locale']?.toString().startsWith('tr') == true,
           orElse: () => {},
         );
       }
-
       if (turkishMale != null && turkishMale.isNotEmpty) {
-        await _tts.setVoice({
-          'name': turkishMale['name'],
-          'locale': turkishMale['locale'],
-        });
+        await _tts.setVoice({'name': turkishMale['name'], 'locale': turkishMale['locale']});
       }
     }
-    
     _initialized = true;
   }
 
@@ -50,6 +41,5 @@ class TtsService {
   }
 
   Future<void> stop() async => await _tts.stop();
-
   void setOnComplete(Function() callback) => _tts.setCompletionHandler(callback);
 }
