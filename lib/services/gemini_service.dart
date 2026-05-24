@@ -4,7 +4,7 @@ import '../models/app_settings.dart';
 import 'memory_service.dart';
 
 class GeminiService {
-  static const _model = 'deepseek-r1-distill-llama-70b';
+  static const _model = 'llama-3.3-70b-versatile';
   static const _baseUrl = 'https://api.groq.com/openai/v1/chat/completions';
 
   static String _buildSystemPrompt(String memoryStr, String userName, String city) {
